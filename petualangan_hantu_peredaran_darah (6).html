@@ -1,0 +1,801 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Petualangan Hantu: Misteri Peredaran Darah</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Creepster&family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
+    <style>
+        body {
+            background-color: #0f0c29;
+            background-image: linear-gradient(to bottom, #0f0c29, #1b1638, #110e20);
+            color: #e0e0e0;
+            font-family: 'Inter', sans-serif;
+            min-height: 100vh;
+            overflow-x: hidden;
+            margin: 0;
+        }
+
+        .font-creepster {
+            font-family: 'Creepster', cursive;
+            letter-spacing: 2px;
+        }
+
+        .title-glow {
+            text-shadow: 0 0 10px rgba(168, 85, 247, 0.8), 0 0 20px rgba(168, 85, 247, 0.6);
+        }
+
+        /* Desain Pintu Menu Utama */
+        .door-card {
+            background: linear-gradient(145deg, #1f1a2e, #14101e);
+            border-radius: 5rem 5rem 1rem 1rem; /* Melengkung di atas */
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+            box-shadow: inset 0 0 15px rgba(0,0,0,0.8), 0 5px 15px rgba(0,0,0,0.5);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 1.5rem 1rem;
+        }
+
+        .door-card:hover:not(.locked) {
+            transform: translateY(-5px);
+            box-shadow: 0 0 20px rgba(168, 85, 247, 0.4), inset 0 0 20px rgba(0,0,0,0.9);
+        }
+
+        .door-card.active {
+            border: 2px solid #a855f7;
+            box-shadow: 0 0 25px rgba(168, 85, 247, 0.5);
+        }
+
+        .door-card.completed {
+            border: 2px solid #22c55e;
+            box-shadow: 0 0 15px rgba(34, 197, 94, 0.3);
+        }
+
+        .door-card.locked {
+            opacity: 0.6;
+            cursor: not-allowed;
+            border: 2px solid #333;
+        }
+
+        /* Animasi Hantu */
+        .ghost-float {
+            animation: float 3s ease-in-out infinite;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-15px); }
+        }
+
+        /* Area Petualangan */
+        #adventure-area {
+            background: radial-gradient(circle at center, #2a2245 0%, #000000 100%);
+            border: 4px solid #4c1d95;
+            box-shadow: 0 0 40px rgba(76, 29, 149, 0.5) inset;
+            position: relative;
+        }
+
+        .clickable-obj {
+            position: absolute;
+            cursor: pointer;
+            transition: transform 0.2s;
+            filter: drop-shadow(0 0 5px rgba(255,255,255,0.3));
+        }
+        .clickable-obj:hover {
+            transform: scale(1.2);
+            filter: drop-shadow(0 0 15px rgba(255,255,0,0.8));
+        }
+
+        /* Modals */
+        .modal-overlay {
+            backdrop-filter: blur(8px);
+            background-color: rgba(15, 12, 41, 0.9);
+        }
+
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 8px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: #1f2937; 
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: #6b7280; 
+            border-radius: 4px;
+        }
+    </style>
+</head>
+<body class="flex flex-col items-center w-full">
+
+    <!-- Navbar Atas -->
+    <nav class="w-full bg-[#141124] border-b border-purple-900 py-3 px-4 md:px-8 flex justify-between items-center z-20 shadow-lg">
+        <div class="flex items-center gap-2 md:gap-3">
+            <span class="text-2xl md:text-3xl">👻</span>
+            <span class="font-creepster text-xl md:text-2xl text-purple-300 tracking-wider mt-1">PETUALANGAN DARAH</span>
+        </div>
+        <div class="flex gap-2 md:gap-3">
+            <button onclick="backToMenu()" class="bg-[#1f292e] hover:bg-[#374151] text-white text-xs md:text-sm font-semibold py-2 px-4 rounded shadow border border-gray-700 transition-colors">Beranda</button>
+            <button onclick="showAdminLogin()" class="bg-[#9333ea] hover:bg-[#7e22ce] text-white text-xs md:text-sm font-semibold py-2 px-4 rounded shadow transition-colors">Panel Admin</button>
+        </div>
+    </nav>
+
+    <!-- Hero Section / Judul Atas -->
+    <header class="w-full text-center mt-8 mb-10 z-10 relative flex flex-col items-center px-4">
+        <!-- Ikon kelelawar samar di kiri atas -->
+        <div class="absolute -top-4 left-4 md:left-20 text-5xl opacity-10 pointer-events-none">🦇</div>
+        
+        <h1 class="text-4xl md:text-6xl lg:text-7xl font-bold text-[#e9d5ff] font-creepster mb-6 text-center max-w-5xl leading-tight title-glow">
+            RUMAH HANTU: MISTERI PEREDARAN<br>DARAH
+        </h1>
+        
+        <div class="bg-black/30 border border-purple-800/80 rounded-xl p-4 md:p-5 max-w-3xl shadow-lg backdrop-blur-sm">
+            <p class="text-gray-300 text-sm md:text-base leading-relaxed">
+                Beranikan dirimu menjelajahi ruangan-ruangan gelap ini! Buka pintu secara berurutan, pelajari materinya, dan cari kunci rahasia dari hantu penjaga.
+            </p>
+        </div>
+    </header>
+
+    <!-- ================= VIEW 1: MAIN MENU (8 DOORS) ================= -->
+    <main id="view-main" class="w-full max-w-6xl mx-auto z-10 px-4 pb-16">
+        <div id="doors-container" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6">
+            <!-- Rendered via JavaScript -->
+        </div>
+    </main>
+
+    <!-- ================= VIEW 2: ROOM 1 (MATERI YOUTUBE) ================= -->
+    <main id="view-room-1" class="w-full max-w-4xl mx-auto z-10 px-4 pb-16 hidden">
+        <div class="flex justify-between items-center mb-6">
+            <h2 class="text-3xl font-creepster text-purple-400">Ruang 1: Laboratorium Peredaran Darah (Materi)</h2>
+            <button onclick="backToMenu()" class="bg-gray-700 hover:bg-gray-600 px-4 py-2 rounded text-white text-sm font-semibold">Kembali</button>
+        </div>
+        
+        <div class="bg-gray-900 p-6 rounded-xl border border-purple-800 shadow-2xl mb-6">
+            <p class="text-gray-300 mb-4 flex items-center gap-2">
+                <span>🧛</span> "Pelajari materi di bawah ini sebelum melanjutkan perjalananmu..."
+            </p>
+            <div id="youtube-container" class="flex flex-col gap-6">
+                <!-- Video Youtube dirender JS -->
+            </div>
+        </div>
+
+        <div class="text-center">
+            <button onclick="completeRoom1()" class="bg-green-600 hover:bg-green-500 text-white font-bold py-3 px-8 rounded-full shadow-[0_0_15px_rgba(34,197,94,0.5)] transition-transform hover:scale-105 text-lg">
+                ✅ Selesai Menonton & Lanjut
+            </button>
+        </div>
+    </main>
+
+    <!-- ================= VIEW 3: ROOM 2-8 VIEW (PETUALANGAN) ================= -->
+    <main id="view-adventure" class="w-full max-w-5xl mx-auto px-4 pb-12 hidden flex flex-col h-[75vh]">
+        <div class="flex justify-between items-center mb-4">
+            <h2 id="adv-room-title" class="text-2xl md:text-3xl font-creepster text-purple-400">Ruang X</h2>
+            <div class="flex items-center gap-4">
+                <div class="text-lg font-bold text-red-400 flex items-center gap-1" id="lives-container">
+                    Nyawa: ❤️❤️❤️
+                </div>
+                <div class="text-lg font-bold text-yellow-400">Kunci: <span id="adv-key-count">0</span>/2</div>
+                <button onclick="backToMenu()" class="bg-gray-700 hover:bg-gray-600 px-3 py-1 rounded text-white text-sm">Batal</button>
+            </div>
+        </div>
+
+        <!-- Area Game -->
+        <div id="adventure-area" class="flex-grow rounded-xl overflow-hidden cursor-crosshair relative min-h-[400px]">
+            <div class="absolute top-4 left-4 flex items-center gap-3 bg-black bg-opacity-70 p-3 rounded-lg z-10 pointer-events-none border border-purple-900">
+                <span class="text-3xl ghost-float">👻</span>
+                <p class="text-gray-200 text-xs md:text-sm font-semibold max-w-xs">
+                    "Carilah 2 kunci yang bercahaya di ruangan ini! Hati-hati jangan salah menyentuh jebakan, atau nyawamu berkurang!"
+                </p>
+            </div>
+            <!-- Objek interaktif dirender JS -->
+            <div id="game-objects"></div>
+        </div>
+    </main>
+
+    <!-- ================= MODALS ================= -->
+
+    <!-- Modal Kunci (QR Code & 3D Web) -->
+    <div id="modal-key" class="fixed inset-0 z-50 flex items-center justify-center hidden modal-overlay px-4">
+        <div class="bg-gray-900 border-2 border-purple-600 rounded-2xl p-6 w-full max-w-lg text-center relative shadow-[0_0_30px_rgba(168,85,247,0.4)]">
+            <div class="absolute top-4 right-4 text-gray-400 hover:text-white cursor-pointer text-xl" onclick="document.getElementById('modal-key').classList.add('hidden')">&times;</div>
+            
+            <div class="text-4xl mb-1">👻</div>
+            <h3 class="text-2xl md:text-3xl font-creepster text-yellow-400 mb-1" id="key-title">KUNCI DITEMUKAN!</h3>
+            <p class="text-gray-300 mb-4 text-xs md:text-sm" id="key-desc">Scan QR Code kuis di bawah ini atau buka referensi 3D anatomi!</p>
+            
+            <div class="bg-black/60 p-4 rounded-xl border border-gray-700 mb-6 flex flex-col items-center">
+                <p class="font-semibold text-gray-300 text-sm mb-2">QR Code Kuis:</p>
+                <img id="key-qr-img" src="" alt="QR Code Kuis" class="mx-auto w-40 h-40 object-contain bg-white p-2 rounded mb-4 shadow" onerror="this.src='https://placehold.co/200x200/ffffff/000000?text=QR+Code+Error'">
+                
+                <a id="key-3d-link" href="#" target="_blank" class="hidden w-full px-4 py-2 bg-indigo-700 hover:bg-indigo-600 text-white font-bold rounded-lg transition-colors items-center justify-center gap-2 text-sm">
+                    🌐 Buka Referensi Web 3D Anatomi
+                </a>
+            </div>
+
+            <button onclick="claimKey()" class="w-full bg-green-600 hover:bg-green-500 text-white font-bold py-3 px-4 rounded-xl shadow-[0_0_15px_rgba(34,197,94,0.4)] transition text-lg">
+                ✅ Selesai Mengerjakan & Ambil Kunci Ini!
+            </button>
+        </div>
+    </div>
+
+    <!-- Modal Game Over -->
+    <div id="modal-gameover" class="fixed inset-0 z-50 flex items-center justify-center hidden modal-overlay px-4">
+        <div class="bg-red-950 border-2 border-red-600 rounded-2xl p-8 w-full max-w-sm text-center relative shadow-[0_0_40px_rgba(220,38,38,0.5)]">
+            <div class="text-6xl mb-4">💀</div>
+            <h3 class="text-4xl font-creepster text-red-500 mb-2 title-glow">GAME OVER</h3>
+            <p class="text-gray-300 mb-6 text-sm">Kamu terlalu banyak menyentuh jebakan. Hantu penjaga telah menangkapmu!</p>
+            <button onclick="retryRoom()" class="bg-red-600 hover:bg-red-500 text-white font-bold py-2 px-6 rounded-lg w-full shadow">
+                Coba Ruangan Ini Lagi
+            </button>
+        </div>
+    </div>
+
+    <!-- Modal Tamat (Room 8 Selesai) -->
+    <div id="modal-victory" class="fixed inset-0 z-50 flex items-center justify-center hidden modal-overlay px-4">
+        <div class="bg-gray-900 border-2 border-yellow-500 rounded-2xl p-8 w-full max-w-lg text-center relative shadow-[0_0_50px_rgba(234,179,8,0.5)]">
+            <div class="text-7xl mb-4 animate-bounce">🏆</div>
+            <h3 class="text-3xl md:text-4xl font-creepster text-yellow-400 mb-2 title-glow">SELAMAT! KAMU BERHASIL!</h3>
+            <p class="text-gray-300 mb-6 text-sm">Kamu telah mengalahkan semua hantu dan memecahkan misteri sistem peredaran darah manusia.</p>
+            <button onclick="closeVictory()" class="bg-yellow-600 hover:bg-yellow-500 text-white font-bold py-3 px-6 rounded-lg w-full shadow">
+                Kembali ke Beranda
+            </button>
+        </div>
+    </div>
+
+    <!-- Modal Login Admin -->
+    <div id="modal-admin-login" class="fixed inset-0 z-50 flex items-center justify-center hidden modal-overlay px-4">
+        <div class="bg-gray-900 border border-purple-600 rounded-xl p-6 w-full max-w-sm text-center shadow-2xl relative">
+            <div class="absolute top-3 right-3 text-gray-400 hover:text-white cursor-pointer text-lg" onclick="hideAdminLogin()">&times;</div>
+            <h3 class="text-2xl font-bold text-white mb-2">🔐 Akses Admin</h3>
+            <p class="text-xs text-gray-400 mb-4">Masukkan password rahasia untuk membuka panel pengaturan.</p>
+            <input type="password" id="admin-pw-input" class="w-full bg-black/50 text-white border border-gray-600 rounded p-2 mb-2 focus:outline-none focus:border-purple-500 text-center tracking-widest" placeholder="Password...">
+            <p id="admin-pw-error" class="text-red-400 text-xs hidden mb-3">Password salah!</p>
+            <div class="flex gap-2 mt-2">
+                <button onclick="hideAdminLogin()" class="flex-1 bg-gray-700 hover:bg-gray-600 text-white py-2 rounded text-sm">Batal</button>
+                <button onclick="verifyAdmin()" class="flex-1 bg-purple-600 hover:bg-purple-500 text-white py-2 rounded font-bold text-sm">Masuk</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Panel Admin Lengkap -->
+    <div id="modal-admin-panel" class="fixed inset-0 z-50 flex items-center justify-center hidden modal-overlay py-4 px-2">
+        <div class="bg-gray-900 border-2 border-purple-600 rounded-xl w-full max-w-4xl max-h-[90vh] flex flex-col shadow-2xl">
+            <div class="p-4 border-b border-gray-700 flex justify-between items-center bg-gray-800 rounded-t-xl">
+                <h3 class="text-xl font-bold text-purple-400 flex items-center gap-2">⚙️ Panel Pengaturan Admin</h3>
+                <button onclick="closeAdminPanel()" class="text-gray-400 hover:text-white text-2xl font-bold">&times;</button>
+            </div>
+            
+            <div class="p-6 overflow-y-auto custom-scrollbar flex-grow space-y-6">
+                <!-- Form Room 1 -->
+                <div class="bg-gray-800 p-4 rounded-lg border border-gray-700">
+                    <h4 class="text-lg font-bold text-white mb-3 border-b border-gray-600 pb-2">Ruang 1: Materi Video YouTube</h4>
+                    <div id="admin-yt-list" class="space-y-3 mb-3">
+                        <!-- YT inputs -->
+                    </div>
+                    <button onclick="addYtInput()" class="text-xs bg-blue-700 hover:bg-blue-600 text-white px-3 py-1.5 rounded font-semibold">+ Tambah Video YouTube</button>
+                </div>
+
+                <!-- Form Room 2-8 -->
+                <div id="admin-rooms-list" class="space-y-6">
+                    <!-- Dinamis via JS -->
+                </div>
+            </div>
+
+            <div class="p-4 border-t border-gray-700 bg-gray-800 rounded-b-xl flex justify-between items-center">
+                <button onclick="resetAdminConfig()" class="bg-red-900 hover:bg-red-800 text-white px-4 py-2 rounded text-xs font-bold">Reset Default</button>
+                <div class="flex gap-2">
+                    <button onclick="closeAdminPanel()" class="bg-gray-700 hover:bg-gray-600 text-white px-4 py-2 rounded text-sm font-semibold">Batal</button>
+                    <button onclick="saveAdminPanel()" class="bg-green-600 hover:bg-green-500 text-white px-6 py-2 rounded font-bold text-sm shadow">Simpan Perubahan</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <!-- ================= JAVASCRIPT LOGIC ================= -->
+    <script>
+        // --- 1. DEFAULT DATA CONFIGURATION ---
+        const DEFAULT_CONFIG = {
+            room1: {
+                title: "Ruang 1: Laboratorium Peredaran Darah (Materi)",
+                yts: [
+                    "https://www.youtube.com/watch?v=FqMzeh3K7_I"
+                ]
+            },
+            rooms: [
+                { 
+                    id: 2, 
+                    name: "Ruang 2: Lorong Bilik Jantung", 
+                    k1_title: "Kunci #1: Struktur & Ruang Jantung",
+                    k1_qr: "https://placehold.co/200x200/ffffff/000000?text=QR+Room+2+K1", 
+                    k1_d3: "", 
+                    k2_title: "Kunci #2: Katup & Pembuluh Darah",
+                    k2_qr: "https://placehold.co/200x200/ffffff/000000?text=QR+Room+2+K2", 
+                    k2_d3: "" 
+                },
+                { 
+                    id: 3, 
+                    name: "Ruang 3: Kamar Tidur Berdebu", 
+                    k1_title: "Kunci #1: Peredaran Darah Besar",
+                    k1_qr: "https://placehold.co/200x200/ffffff/000000?text=QR+Room+3+K1", 
+                    k1_d3: "", 
+                    k2_title: "Kunci #2: Peredaran Darah Kecil",
+                    k2_qr: "https://placehold.co/200x200/ffffff/000000?text=QR+Room+3+K2", 
+                    k2_d3: "" 
+                },
+                { 
+                    id: 4, 
+                    name: "Ruang 4: Gudang Bawah Tanah", 
+                    k1_title: "Kunci #1: Fungsi Sel Darah Merah",
+                    k1_qr: "https://placehold.co/200x200/ffffff/000000?text=QR+Room+4+K1", 
+                    k1_d3: "", 
+                    k2_title: "Kunci #2: Hemoglobin & Oksigen",
+                    k2_qr: "https://placehold.co/200x200/ffffff/000000?text=QR+Room+4+K2", 
+                    k2_d3: "" 
+                },
+                { 
+                    id: 5, 
+                    name: "Ruang 5: Perpustakaan Kuno", 
+                    k1_title: "Kunci #1: Sel Darah Putih (Leukosit)",
+                    k1_qr: "https://placehold.co/200x200/ffffff/000000?text=QR+Room+5+K1", 
+                    k1_d3: "", 
+                    k2_title: "Kunci #2: Keping Darah (Trombosit)",
+                    k2_qr: "https://placehold.co/200x200/ffffff/000000?text=QR+Room+5+K2", 
+                    k2_d3: "" 
+                },
+                { 
+                    id: 6, 
+                    name: "Ruang 6: Ruang Makan Terbengkalai", 
+                    k1_title: "Kunci #1: Plasma Darah",
+                    k1_qr: "https://placehold.co/200x200/ffffff/000000?text=QR+Room+6+K1", 
+                    k1_d3: "", 
+                    k2_title: "Kunci #2: Golongan Darah A, B, AB, O",
+                    k2_qr: "https://placehold.co/200x200/ffffff/000000?text=QR+Room+6+K2", 
+                    k2_d3: "" 
+                },
+                { 
+                    id: 7, 
+                    name: "Ruang 7: Loteng Sempit", 
+                    k1_title: "Kunci #1: Penyakit Hipertensi",
+                    k1_qr: "https://placehold.co/200x200/ffffff/000000?text=QR+Room+7+K1", 
+                    k1_d3: "", 
+                    k2_title: "Kunci #2: Anemia & Varises",
+                    k2_qr: "https://placehold.co/200x200/ffffff/000000?text=QR+Room+7+K2", 
+                    k2_d3: "" 
+                },
+                { 
+                    id: 8, 
+                    name: "Ruang 8: Kamar Mandi Berdarah", 
+                    k1_title: "Kunci #1: Evaluasi Jantung",
+                    k1_qr: "https://placehold.co/200x200/ffffff/000000?text=QR+Room+8+K1", 
+                    k1_d3: "", 
+                    k2_title: "Kunci #2: Misteri Akhir Peredaran Darah",
+                    k2_qr: "https://placehold.co/200x200/ffffff/000000?text=QR+Room+8+K2", 
+                    k2_d3: "" 
+                }
+            ]
+        };
+
+        // --- 2. STATE MANAGEMENT ---
+        let gameConfig = JSON.parse(JSON.stringify(DEFAULT_CONFIG));
+        let gameState = {
+            currentLevel: 1, 
+            lives: 3,
+            keysFoundInCurrentRoom: 0
+        };
+        let activeRoomId = 0; 
+        let activeKeyNum = 1; 
+
+        function loadData() {
+            const savedConfig = localStorage.getItem('hantu_config_v3');
+            if(savedConfig) gameConfig = JSON.parse(savedConfig);
+
+            const savedState = localStorage.getItem('hantu_state_v3');
+            if(savedState) gameState = JSON.parse(savedState);
+        }
+
+        function saveData() {
+            localStorage.setItem('hantu_config_v3', JSON.stringify(gameConfig));
+            localStorage.setItem('hantu_state_v3', JSON.stringify(gameState));
+        }
+
+        // --- 3. UI RENDERING: MAIN MENU ---
+        function renderMainMenu() {
+            const container = document.getElementById('doors-container');
+            if(!container) return;
+            container.innerHTML = '';
+
+            // Room 1 Card
+            createDoorCard(container, 1, gameConfig.room1.title, gameState.currentLevel > 1, gameState.currentLevel === 1, "📖");
+
+            // Room 2-8 Cards
+            gameConfig.rooms.forEach((room) => {
+                const isCompleted = gameState.currentLevel > room.id;
+                const isActive = gameState.currentLevel === room.id;
+                createDoorCard(container, room.id, room.name, isCompleted, isActive, "🚪");
+            });
+        }
+
+        function createDoorCard(container, id, name, isCompleted, isActive, defaultIcon) {
+            const div = document.createElement('div');
+            
+            let statusText = "Terkunci";
+            let statusClass = "bg-gray-800 text-gray-500 border border-gray-700";
+            let icon = "🔒";
+            let stateClass = "locked";
+            
+            if (isCompleted) {
+                statusText = "Selesai ✓";
+                statusClass = "bg-green-950 text-green-300 border border-green-700";
+                icon = defaultIcon;
+                stateClass = "completed cursor-pointer";
+            } else if (isActive) {
+                statusText = id === 1 ? "Masuk Materi" : "Kunci: 0/2";
+                statusClass = "bg-yellow-950 text-yellow-300 border border-yellow-700";
+                icon = defaultIcon;
+                stateClass = "active cursor-pointer";
+            }
+
+            const formattedNum = id.toString().padStart(2, '0');
+
+            div.className = `door-card border-4 border-gray-800 h-64 md:h-72 ${stateClass}`;
+            div.innerHTML = `
+                <span class="text-3xl font-creepster text-purple-400 drop-shadow-md mb-1">${formattedNum}</span>
+                <div class="text-5xl my-2 drop-shadow-lg">${icon}</div>
+                <h3 class="text-base md:text-lg font-creepster text-white text-center mt-2 mb-2 flex-grow leading-tight px-1">${name}</h3>
+                <div class="mt-auto px-4 py-1 rounded-full ${statusClass} text-xs font-semibold shadow-inner w-3/4 text-center">
+                    ${statusText}
+                </div>
+            `;
+
+            if (isCompleted || isActive) {
+                div.onclick = () => enterRoom(id);
+            }
+
+            container.appendChild(div);
+        }
+
+        // --- 4. NAVIGATION & VIEWS ---
+        function switchView(viewId) {
+            document.getElementById('view-main').classList.add('hidden');
+            document.getElementById('view-room-1').classList.add('hidden');
+            document.getElementById('view-adventure').classList.add('hidden');
+            document.getElementById(viewId).classList.remove('hidden');
+        }
+
+        function backToMenu() {
+            renderMainMenu();
+            switchView('view-main');
+        }
+
+        function enterRoom(id) {
+            activeRoomId = id;
+            if (id === 1) {
+                renderRoom1();
+                switchView('view-room-1');
+            } else {
+                initAdventureRoom(id);
+                switchView('view-adventure');
+            }
+        }
+
+        // Room 1 Logic
+        function renderRoom1() {
+            const container = document.getElementById('youtube-container');
+            container.innerHTML = '';
+            
+            const yts = gameConfig.room1.yts || [];
+            if(yts.length === 0) {
+                container.innerHTML = '<p class="text-gray-400 italic text-center py-4">Belum ada video materi yang ditambahkan.</p>';
+                return;
+            }
+
+            yts.forEach(url => {
+                if(!url) return;
+                let embedUrl = url;
+                if(url.includes('watch?v=')) {
+                    embedUrl = url.replace('watch?v=', 'embed/').split('&')[0];
+                } else if(url.includes('youtu.be/')) {
+                    embedUrl = url.replace('youtu.be/', 'www.youtube.com/embed/');
+                }
+
+                container.innerHTML += `
+                    <div class="w-full aspect-video">
+                        <iframe class="w-full h-full rounded border border-gray-700 shadow-md" src="${embedUrl}" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+                    </div>
+                `;
+            });
+        }
+
+        function completeRoom1() {
+            if(gameState.currentLevel === 1) {
+                gameState.currentLevel = 2;
+                saveData();
+            }
+            backToMenu();
+        }
+
+        // Room 2-8 Adventure Logic
+        function initAdventureRoom(id) {
+            const roomData = gameConfig.rooms.find(r => r.id === id);
+            document.getElementById('adv-room-title').innerText = roomData.name;
+            
+            gameState.lives = 3;
+            gameState.keysFoundInCurrentRoom = 0;
+            updateAdventureUI();
+
+            const objContainer = document.getElementById('game-objects');
+            objContainer.innerHTML = '';
+
+            // Render 2 Keys
+            createClickableObj(objContainer, '🔑', () => openKeyModal(1));
+            createClickableObj(objContainer, '🔑', () => openKeyModal(2));
+
+            // Render Traps / Decoys
+            const decoys = ['🦇', '🕷️', '💀', '🕸️', '🐀'];
+            decoys.forEach(d => {
+                createClickableObj(objContainer, d, () => clickTrap());
+            });
+        }
+
+        function createClickableObj(container, icon, clickHandler) {
+            const el = document.createElement('div');
+            el.className = 'clickable-obj text-3xl md:text-4xl';
+            el.innerText = icon;
+            
+            const top = Math.floor(Math.random() * 65) + 20; 
+            const left = Math.floor(Math.random() * 80) + 10; 
+            
+            el.style.top = top + '%';
+            el.style.left = left + '%';
+            
+            el.onclick = function(e) {
+                e.stopPropagation();
+                if(icon === '🔑') {
+                    this.style.display = 'none';
+                }
+                clickHandler();
+            };
+            container.appendChild(el);
+        }
+
+        function updateAdventureUI() {
+            let hearts = '';
+            for(let i=0; i<3; i++) hearts += i < gameState.lives ? '❤️' : '🖤';
+            document.getElementById('lives-container').innerHTML = `Nyawa: ${hearts}`;
+            document.getElementById('adv-key-count').innerText = gameState.keysFoundInCurrentRoom;
+        }
+
+        function clickTrap() {
+            gameState.lives--;
+            updateAdventureUI();
+            if(gameState.lives <= 0) {
+                document.getElementById('modal-gameover').classList.remove('hidden');
+            }
+        }
+
+        function retryRoom() {
+            document.getElementById('modal-gameover').classList.add('hidden');
+            initAdventureRoom(activeRoomId);
+        }
+
+        function openKeyModal(keyNum) {
+            activeKeyNum = keyNum;
+            const roomData = gameConfig.rooms.find(r => r.id === activeRoomId);
+            const title = keyNum === 1 ? roomData.k1_title : roomData.k2_title;
+            const qrUrl = keyNum === 1 ? roomData.k1_qr : roomData.k2_qr;
+            const d3Url = keyNum === 1 ? roomData.k1_d3 : roomData.k2_d3;
+
+            document.getElementById('key-title').innerText = title || `KUNCI #${keyNum}`;
+            document.getElementById('key-qr-img').src = qrUrl;
+
+            const btn3d = document.getElementById('key-3d-link');
+            if(d3Url && d3Url.trim() !== '') {
+                btn3d.href = d3Url;
+                btn3d.classList.remove('hidden');
+                btn3d.classList.add('flex');
+            } else {
+                btn3d.classList.add('hidden');
+                btn3d.classList.remove('flex');
+            }
+
+            document.getElementById('modal-key').classList.remove('hidden');
+        }
+
+        function claimKey() {
+            document.getElementById('modal-key').classList.add('hidden');
+            gameState.keysFoundInCurrentRoom++;
+            updateAdventureUI();
+
+            if(gameState.keysFoundInCurrentRoom >= 2) {
+                setTimeout(() => {
+                    if(gameState.currentLevel === activeRoomId) {
+                        gameState.currentLevel++;
+                        saveData();
+                    }
+
+                    if(activeRoomId === 8) {
+                        document.getElementById('modal-victory').classList.remove('hidden');
+                    } else {
+                        backToMenu();
+                    }
+                }, 400);
+            }
+        }
+
+        function closeVictory() {
+            document.getElementById('modal-victory').classList.add('hidden');
+            backToMenu();
+        }
+
+        // --- 5. ADMIN PANEL AUTH & LOGIC ---
+        function showAdminLogin() {
+            document.getElementById('admin-pw-input').value = '';
+            document.getElementById('admin-pw-error').classList.add('hidden');
+            document.getElementById('modal-admin-login').classList.remove('hidden');
+        }
+
+        function hideAdminLogin() {
+            document.getElementById('modal-admin-login').classList.add('hidden');
+        }
+
+        function verifyAdmin() {
+            const pw = document.getElementById('admin-pw-input').value;
+            if(pw === 'KELOMPOK2JOSJIS') {
+                hideAdminLogin();
+                openAdminPanel();
+            } else {
+                document.getElementById('admin-pw-error').classList.remove('hidden');
+            }
+        }
+
+        function openAdminPanel() {
+            buildAdminForm();
+            document.getElementById('modal-admin-panel').classList.remove('hidden');
+        }
+
+        function closeAdminPanel() {
+            document.getElementById('modal-admin-panel').classList.add('hidden');
+        }
+
+        // Fungsi baru untuk menangani upload gambar dan mengubah ke Base64 Data URL
+        function handleImageUpload(event, previewId, hiddenId) {
+            const file = event.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    const base64Str = e.target.result;
+                    document.getElementById(previewId).src = base64Str;
+                    document.getElementById(hiddenId).value = base64Str;
+                };
+                reader.readAsDataURL(file);
+            }
+        }
+
+        function buildAdminForm() {
+            // Room 1 YT list
+            const ytList = document.getElementById('admin-yt-list');
+            ytList.innerHTML = '';
+            const yts = gameConfig.room1.yts || [];
+            yts.forEach(yt => {
+                addYtInputHtml(ytList, yt);
+            });
+            if(yts.length === 0) addYtInputHtml(ytList, '');
+
+            // Room 2-8 list
+            const roomsList = document.getElementById('admin-rooms-list');
+            roomsList.innerHTML = '';
+            gameConfig.rooms.forEach((room) => {
+                const div = document.createElement('div');
+                div.className = "bg-gray-800 p-4 rounded-lg border border-gray-700";
+                div.innerHTML = `
+                    <h4 class="text-base font-bold text-purple-400 mb-3 border-b border-gray-600 pb-2">Ruang ${room.id}:</h4>
+                    <div class="mb-3">
+                        <label class="block text-xs text-gray-400 mb-1">Nama Ruangan</label>
+                        <input type="text" id="adm-r${room.id}-name" class="w-full bg-gray-900 border border-gray-600 rounded p-2 text-white text-sm" value="${room.name}">
+                    </div>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div class="bg-gray-900/60 p-3 rounded border border-gray-700">
+                            <p class="font-bold text-yellow-500 text-sm mb-2">🔑 Kunci 1</p>
+                            <label class="block text-xs text-gray-400 mb-1">Judul Kunci</label>
+                            <input type="text" id="adm-r${room.id}-k1-title" class="w-full bg-black border border-gray-600 rounded p-1.5 mb-2 text-xs text-white" value="${room.k1_title || ''}">
+                            
+                            <label class="block text-xs text-gray-400 mb-1">Upload Gambar QR Kuis</label>
+                            <div class="flex items-start gap-2 mb-2">
+                                <img id="preview-r${room.id}-k1" src="${room.k1_qr || 'https://placehold.co/200x200/ffffff/000000?text=QR+Code'}" class="w-12 h-12 object-contain bg-white rounded shadow-sm">
+                                <div class="flex-grow overflow-hidden">
+                                    <input type="file" accept="image/*" class="w-full text-xs text-gray-300 file:mr-2 file:py-1 file:px-2 file:rounded file:border-0 file:text-xs file:font-semibold file:bg-purple-700 file:text-white hover:file:bg-purple-600 cursor-pointer" onchange="handleImageUpload(event, 'preview-r${room.id}-k1', 'adm-r${room.id}-k1-qr')">
+                                    <input type="hidden" id="adm-r${room.id}-k1-qr" value="${room.k1_qr || ''}">
+                                </div>
+                            </div>
+
+                            <label class="block text-xs text-gray-400 mb-1">Link Web 3D (Opsional)</label>
+                            <input type="text" id="adm-r${room.id}-k1-d3" class="w-full bg-black border border-gray-600 rounded p-1.5 text-xs text-white" value="${room.k1_d3 || ''}">
+                        </div>
+                        <div class="bg-gray-900/60 p-3 rounded border border-gray-700">
+                            <p class="font-bold text-yellow-500 text-sm mb-2">🔑 Kunci 2</p>
+                            <label class="block text-xs text-gray-400 mb-1">Judul Kunci</label>
+                            <input type="text" id="adm-r${room.id}-k2-title" class="w-full bg-black border border-gray-600 rounded p-1.5 mb-2 text-xs text-white" value="${room.k2_title || ''}">
+                            
+                            <label class="block text-xs text-gray-400 mb-1">Upload Gambar QR Kuis</label>
+                            <div class="flex items-start gap-2 mb-2">
+                                <img id="preview-r${room.id}-k2" src="${room.k2_qr || 'https://placehold.co/200x200/ffffff/000000?text=QR+Code'}" class="w-12 h-12 object-contain bg-white rounded shadow-sm">
+                                <div class="flex-grow overflow-hidden">
+                                    <input type="file" accept="image/*" class="w-full text-xs text-gray-300 file:mr-2 file:py-1 file:px-2 file:rounded file:border-0 file:text-xs file:font-semibold file:bg-purple-700 file:text-white hover:file:bg-purple-600 cursor-pointer" onchange="handleImageUpload(event, 'preview-r${room.id}-k2', 'adm-r${room.id}-k2-qr')">
+                                    <input type="hidden" id="adm-r${room.id}-k2-qr" value="${room.k2_qr || ''}">
+                                </div>
+                            </div>
+
+                            <label class="block text-xs text-gray-400 mb-1">Link Web 3D (Opsional)</label>
+                            <input type="text" id="adm-r${room.id}-k2-d3" class="w-full bg-black border border-gray-600 rounded p-1.5 text-xs text-white" value="${room.k2_d3 || ''}">
+                        </div>
+                    </div>
+                `;
+                roomsList.appendChild(div);
+            });
+        }
+
+        function addYtInputHtml(container, value) {
+            const wrap = document.createElement('div');
+            wrap.className = "flex gap-2";
+            wrap.innerHTML = `
+                <input type="text" class="adm-yt-input flex-grow bg-gray-900 border border-gray-600 rounded p-2 text-white text-xs" placeholder="https://youtube.com/..." value="${value}">
+                <button onclick="this.parentElement.remove()" class="bg-red-900 hover:bg-red-800 text-white px-3 rounded font-bold text-xs">X</button>
+            `;
+            container.appendChild(wrap);
+        }
+
+        function addYtInput() {
+            const ytList = document.getElementById('admin-yt-list');
+            addYtInputHtml(ytList, '');
+        }
+
+        function saveAdminPanel() {
+            // Save YT links
+            const ytInputs = document.querySelectorAll('.adm-yt-input');
+            gameConfig.room1.yts = [];
+            ytInputs.forEach(input => {
+                if(input.value.trim() !== '') gameConfig.room1.yts.push(input.value.trim());
+            });
+
+            // Save rooms config
+            gameConfig.rooms.forEach(room => {
+                const nameEl = document.getElementById(`adm-r${room.id}-name`);
+                if(nameEl) room.name = nameEl.value;
+
+                const k1t = document.getElementById(`adm-r${room.id}-k1-title`);
+                if(k1t) room.k1_title = k1t.value;
+                const k1q = document.getElementById(`adm-r${room.id}-k1-qr`);
+                if(k1q) room.k1_qr = k1q.value;
+                const k1d = document.getElementById(`adm-r${room.id}-k1-d3`);
+                if(k1d) room.k1_d3 = k1d.value;
+
+                const k2t = document.getElementById(`adm-r${room.id}-k2-title`);
+                if(k2t) room.k2_title = k2t.value;
+                const k2q = document.getElementById(`adm-r${room.id}-k2-qr`);
+                if(k2q) room.k2_qr = k2q.value;
+                const k2d = document.getElementById(`adm-r${room.id}-k2-d3`);
+                if(k2d) room.k2_d3 = k2d.value;
+            });
+
+            saveData();
+            closeAdminPanel();
+            renderMainMenu();
+        }
+
+        function resetAdminConfig() {
+            gameConfig = JSON.parse(JSON.stringify(DEFAULT_CONFIG));
+            saveData();
+            buildAdminForm();
+        }
+
+        // --- INITIALIZATION ---
+        window.onload = () => {
+            loadData();
+            renderMainMenu();
+        };
+    </script>
+</body>
+</html>
